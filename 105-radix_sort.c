@@ -1,89 +1,83 @@
 #include "sort.h"
-#include <stdio.h>
-/**
-* getMax - A utility function to get maximum value in arr[]
-* @arr: array
-* @n: size of the array
-* Return: array
-*/
-int getMax(int *arr, int n)
-{
-	int i, max = arr[0];
 
-	for (i = 1; i < n; i++)
-		if (arr[i] > max)
-			max = arr[i];
+int get_max(int *array, int size);
+void radix_counting_sort(int *array, size_t size, int sig, int *buff);
+void radix_sort(int *array, size_t size);
+
+/**
+ * get_max - Get the maximum value in an array of integers.
+ * @array: An array of integers.
+ * @size: The size of the array.
+ * Return: The maximum integer in the array.
+ */
+
+int get_max(int *array, int size)
+{
+	int max, u;
+
+	for (max = array[0], u = 1; u < size; u++)
+	{
+		if (array[u] > max)
+			max = array[u];
+	}
+
 	return (max);
 }
 
 /**
-* countSort - A function to do counting sort of arr[] according to
-* the digit represented by exp.
-* @arr: array
-* @n: size of the array
-* @exp: exp is 10^i
-* @output: array to save the temporary values
-*/
-void countSort(int *arr, size_t n, int exp, int *output)
+ * radix_counting_sort - Sort the significant digits of an array of integers
+ * in ascending order.
+ * @array: An array of integers.
+ * @size: The size of the array.
+ * @sig: The significant digit to sort on.
+ * @buff: A buffer to store the sorted array.
+ */
+void radix_counting_sort(int *array, size_t size, int sig, int *buff)
 {
-	int i;
-	int count[10] = {0};
+	int count[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+	size_t u;
 
-	/* Store count of occurrences in count[] */
-	for (i = 0; i < (int)n; i++)
-		count[(arr[i] / exp) % 10]++;
+	for (u = 0; u < size; u++)
+		count[(array[u] / sig) % 10] += 1;
 
-	/*
-	* Change count[i] so that count[i] now contains actual
-    * position of this digit in output[]
-	*/
-	for (i = 1; i < 10; i++)
-		count[i] += count[i - 1];
+	for (u = 0; u < 10; u++)
+		count[u] += count[u - 1];
 
-	/* Build the output array */
-	for (i = n - 1; i >= 0; i--)
+	for (u = size - 1; (int)u >= 0; u--)
 	{
-		output[count[(arr[i] / exp) % 10] - 1] = arr[i];
-		count[(arr[i] / exp) % 10]--;
+		buff[count[(array[u] / sig) % 10] - 1] = array[u];
+		count[(array[u] / sig) % 10] -= 1;
 	}
 
-	/*
-	* Copy the output array to arr[], so that arr[] now
-    * contains sorted numbers according to current digit
-	*/
-	for (i = 0; i < (int)n; i++)
-		arr[i] = output[i];
-	/*print_array(arr, n);*/
+	for (u = 0; u < size; u++)
+		array[u] = buff[u];
 }
 
 /**
-* radix_sort - The main function to that sorts arr[]
-* of size n using Radix Sort
-* @array: array
-* @size: size of the array
-*/
+ * radix_sort - Sort an array of integers in ascending order
+ * @array: An array of integers.
+ * @size: The size of the array.
+ * Description: Implements the LSD radix sort algorithm. Prints
+ * the array after each significant digit increase.
+ */
+
 void radix_sort(int *array, size_t size)
 {
-	/* Find the maximum number to know number of digits */
-	int exp, maximum = 0;
-	int *output = '\0'; /* output array should be n(size) */
+	int max, sig, *buff;
 
-	if (array == '\0' || size < 2)
+	if (array == NULL || size < 2)
 		return;
 
-	maximum = getMax(array, size);
-	output = malloc(size * sizeof(int));
-	if (output == '\0')
+	buff = malloc(sizeof(int) * size);
+	if (buff == NULL)
 		return;
-	/*
-	* Do counting sort for every digit. Note that instead
-    * of passing digit number, exp is passed. exp is 10^i
-    * where i is current digit number
-	*/
-	for (exp = 1; maximum / exp > 0; exp *= 10)
+
+	max = get_max(array, size);
+	for (sig = 1; max / sig > 0; sig *= 10)
 	{
-		countSort(array, size, exp, output);
+		radix_counting_sort(array, size, sig, buff);
 		print_array(array, size);
 	}
-	free(output);
+
+	free(buff);
 }

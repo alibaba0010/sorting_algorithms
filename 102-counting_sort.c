@@ -1,60 +1,68 @@
 #include "sort.h"
-#include <stdio.h>
-/**
- *_calloc - this is a calloc function
- *@nmemb: number of elemets
- *@size: bit size of each element
- *Return: pointer to memory assignement
- */
-void *_calloc(unsigned int nmemb, unsigned int size)
-{
-	unsigned int i = 0;
-	char *p;
 
-	if (nmemb == 0 || size == 0)
-		return ('\0');
-	p = malloc(nmemb * size);
-	if (p == '\0')
-		return ('\0');
-	for (i = 0; i < (nmemb * size); i++)
-		p[i] = '\0';
-	return (p);
-}
 /**
- * counting_sort - this is a counting sort method implementation
- * @array: array to sort
- * @size: array size
+ * get_max - Get the maximum value in an array of integers.
+ * @array: An array of integers.
+ * @size: The size of the array.
+ * Return: The maximum integer in the array.
  */
+
+int get_max(int *array, int size)
+{
+	int max, u;
+
+	for (max = array[0], u = 1; u < size; u++)
+	{
+		if (array[u] > max)
+			max = array[u];
+	}
+
+	return (max);
+}
+
+/**
+ * counting_sort - Sort an array of integers in ascending order
+ * using the counting sort algorithm.
+ * @array: An array of integers.
+ * @size: The size of the array.
+ * Description: Prints the counting array after setting it up.
+ */
+
 void counting_sort(int *array, size_t size)
 {
-	int index, maximun = 0, *counter = '\0', *tmp = '\0';
-	size_t i;
+	int *count, *sorted, max, x;
 
-	if (array == '\0' || size < 2)
+	if (array == NULL || size < 2)
 		return;
-	/* find maximun number */
-	for (i = 0; i < size; i++)
-		if (array[i] > maximun)
-			maximun = array[i];
-	counter = _calloc(maximun + 1, sizeof(int));
-	tmp = _calloc(size + 1, sizeof(int));
-	/* count the array elements */
-	for (i = 0; i < size; i++)
-		counter[array[i]]++;
-	/* get the accumulative values */
-	for (index = 1; index <= maximun; index++)
-		counter[index] += counter[index - 1];
-	print_array(counter, maximun + 1);
-	/* get the new array sorted */
-	for (i = 0; i < size; ++i)
-	{
-		tmp[counter[array[i]] - 1] = array[i];
-		counter[array[i]]--;
-	}
-	/* replace old array to new array sorted */
-	for (i = 0; i < size; i++)
-		array[i] = tmp[i];
-	free(tmp);
-	free(counter);
 
+	sorted = malloc(sizeof(int) * size);
+	if (sorted == NULL)
+		return;
+	max = get_max(array, size);
+	count = malloc(sizeof(int) * (max + 1));
+	if (count == NULL)
+	{
+		free(sorted);
+		return;
+	}
+
+	for (x = 0; x < (max + 1); x++)
+		count[x] = 0;
+	for (x = 0; x < (int)size; x++)
+		count[array[i]] += 1;
+	for (x = 0; x < (max + 1); x++)
+		count[x] += count[x - 1];
+	print_array(count, max + 1);
+
+	for (x = 0; x < (int)size; x++)
+	{
+		sorted[count[array[x]] - 1] = array[x];
+		count[array[x]] -= 1;
+	}
+
+	for (x = 0; x < (int)size; x++)
+		array[i] = sorted[i];
+
+	free(sorted);
+	free(count);
 }
