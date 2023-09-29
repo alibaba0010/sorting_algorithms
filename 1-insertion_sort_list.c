@@ -1,46 +1,58 @@
 #include "sort.h"
+
 /**
- * insertion_sort_list - function that sorts a doubly linked list
- * of integers in ascending order using the Insertion sort algorithm
- * @list: Dobule linked list to sort
+ * insertion_sort_list - sorts a doubly linked list of integers in ascending
+ * order using the Insertion sort algorithm
+ * @list: Double pointer to the head of the linked list
+ *
+ * Return: void
  */
 void insertion_sort_list(listint_t **list)
 {
-	listint_t *node;
+	listint_t *current, *next;
 
-	if (list == NULL || (*list)->next == NULL)
+	if (list == NULL || *list == NULL || (*list)->next == NULL)
 		return;
-	node = (*list)->next;
-	while (node)
+
+	current = (*list)->next;
+
+	while (current)
 	{
-		while ((node->prev) && (node->prev->n > node->n))
+		next = current->next;
+
+		while (current->prev && current->n < current->prev->n)
 		{
-			node = swap_node(node, list);
-			print_list(*list);
+			iswap_nodes(list, current->prev, current);
 		}
-		node = node->next;
+
+		current = next;
 	}
 }
-/**
- *swap_node - swap a node for his previous one
- *@node: node
- *@list: node list
- *Return: return a pointer to a node which was enter it
- */
-listint_t *swap_node(listint_t *node, listint_t **list)
-{
-	listint_t *back = node->prev, *current = node;
-	/*NULL, 19, 48, 9, 71, 13, NULL*/
 
-	back->next = current->next;
-	if (current->next)
-		current->next->prev = back;
-	current->next = back;
-	current->prev = back->prev;
-	back->prev = current;
-	if (current->prev)
-		current->prev->next = current;
-	else
-		*list = current;
-	return (current);
+/**
+ * iswap_nodes - insert and swap a node into a sorted doubly linked list
+ * @sort_list: Double pointer to the element of the sorted list
+ * @node1: Pointer to the node1
+ * @node2: Pointer to the node2
+ *
+ * Return: void
+ */
+void iswap_nodes(listint_t **sort_list, listint_t *node1, listint_t *node2)
+{
+	if (node1->prev)
+		node1->prev->next = node2;
+
+	if (node2->next)
+		node2->next->prev = node1;
+
+	node1->next = node2->next;
+	node2->prev = node1->prev;
+
+	node1->prev = node2;
+	node2->next = node1;
+
+	if (node1 == *sort_list)
+		*sort_list = node2;
+
+	print_list(*sort_list);
 }
